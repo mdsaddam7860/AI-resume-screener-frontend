@@ -1,8 +1,14 @@
 import axios from "axios";
 import { Job, Candidate, UploadResponse } from "../types";
 
-// Relative base URL; Vite dev server proxies /api to the backend (see vite.config.ts).
-const api = axios.create({ baseURL: "/api" });
+// In local dev, VITE_API_URL is left unset and requests go to the relative
+// "/api" path, which Vite's dev server proxies to localhost:4000 (see vite.config.ts).
+// In production (e.g. Vercel), there is no such proxy - the frontend is served
+// as static files - so VITE_API_URL must be set to the deployed backend's
+// full URL (e.g. https://your-backend.onrailway.app/api).
+const baseURL = import.meta.env.VITE_API_URL || "/api";
+
+const api = axios.create({ baseURL, withCredentials: true });
 
 export async function fetchJobs(): Promise<Job[]> {
   const { data } = await api.get<Job[]>("/jobs");
